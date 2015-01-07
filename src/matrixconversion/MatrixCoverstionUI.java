@@ -1,0 +1,1202 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package matrixconversion;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import javax.swing.DefaultRowSorter;
+import javax.swing.JFileChooser;
+import javax.swing.RowSorter;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.text.NumberFormatter;
+
+import org.jdom2.JDOMException;
+
+import matrixconversion.IO.NeXMLIO;
+import matrixconversion.IO.csvFileIO;
+import matrixconversion.IO.txtMatrixFileIo;
+import matrixconversion.util.StringPattern;
+ class MyCustomFilter extends javax.swing.filechooser.FileFilter {
+        @Override
+	public boolean accept(File file) {
+		// Allow only directories, or files with ".txt" extension
+		return file.isDirectory() || file.getAbsolutePath().endsWith(".txt")
+				|| file.getAbsolutePath().endsWith(".csv");
+	}
+        @Override
+        public String getDescription() {
+            // This description will be displayed in the dialog,
+            // hard-coded = ugly, should be done via I18N
+            return "Text documents (*.txt) or csv file (*.csv)";
+        }
+    } 
+ 
+ class MyCustomFilterCsv extends javax.swing.filechooser.FileFilter {
+     @Override
+     public boolean accept(File file) {
+         // Allow only directories, or files with ".txt" extension
+         return file.isDirectory() || file.getAbsolutePath().endsWith(".csv");
+     }
+     @Override
+     public String getDescription() {
+         // This description will be displayed in the dialog,
+         // hard-coded = ugly, should be done via I18N
+         return "csv files (*.csv)";
+     }
+ } 
+ 
+ class MyCustomFilterNex extends javax.swing.filechooser.FileFilter {
+     @Override
+     public boolean accept(File file) {
+         // Allow only directories, or files with ".txt" extension
+         return file.isDirectory() || file.getAbsolutePath().endsWith(".nex");
+     }
+     @Override
+     public String getDescription() {
+         // This description will be displayed in the dialog,
+         // hard-coded = ugly, should be done via I18N
+         return "Nexus files (*.nex)";
+     }
+ } 
+ 
+ class MyCustomFilterPhy extends javax.swing.filechooser.FileFilter {
+     @Override
+     public boolean accept(File file) {
+         // Allow only directories, or files with ".txt" extension
+         return file.isDirectory() || file.getAbsolutePath().endsWith(".nex");
+     }
+     @Override
+     public String getDescription() {
+         // This description will be displayed in the dialog,
+         // hard-coded = ugly, should be done via I18N
+         return "phy files (*.phy)";
+     }
+ } 
+ 
+ class MyCustomFilterXml extends javax.swing.filechooser.FileFilter {
+     @Override
+     public boolean accept(File file) {
+         // Allow only directories, or files with ".txt" extension
+         return file.isDirectory() || file.getAbsolutePath().endsWith(".nex");
+     }
+     @Override
+     public String getDescription() {
+         // This description will be displayed in the dialog,
+         // hard-coded = ugly, should be done via I18N
+         return "xml files (*.xml)";
+     }
+ } 
+
+/**
+ *
+ * @author jingliu5
+ */
+public class MatrixCoverstionUI extends javax.swing.JFrame {
+    protected static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(MatrixCoverstionUI.class);
+    List characterFeatureList = new ArrayList();
+    List columnStatistics;
+    HashMap mappingRuleMap = new HashMap();
+    HashMap binMappingRuleMap = new HashMap();    //save the bin mapping rule for all the characters
+    ArrayList<String> headers;
+    String filepath;
+    String outfilepath;
+
+    TableRowSorter<TableModel> fSorter;
+    List<RowSorter.SortKey> sortKeys; 
+    /**
+     * Creates new form MatrixCoverstionUI
+     */
+    public MatrixCoverstionUI() {
+		try {
+			initComponents();
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        fileChooser = new javax.swing.JFileChooser();
+        mappingChoiceButtonGroup = new javax.swing.ButtonGroup();
+        outputFormatChoiceButtonGroup = new javax.swing.ButtonGroup();
+        jPanel1 = new javax.swing.JPanel();
+        filepathText = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        characterComboBox = new javax.swing.JComboBox();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        asisValueRadio = new javax.swing.JRadioButton();
+        binRadio = new javax.swing.JRadioButton();
+        numberRadio = new javax.swing.JRadioButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        binRuleTable = new javax.swing.JTable();
+        insertBinRuleButton = new javax.swing.JButton();
+        deleteBinRuleButton = new javax.swing.JButton();
+        applyBinRuleButton = new javax.swing.JButton();
+        jPanel5 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        featureMappingTable = new javax.swing.JTable();
+        featureMappingTable.setAutoCreateRowSorter(true);
+        saveMappingRuleButton = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        saveMatrixButton = new javax.swing.JButton();
+        nexFormatButton = new javax.swing.JRadioButton();
+        phyFormatButton = new javax.swing.JRadioButton();
+        txtFormatButton = new javax.swing.JRadioButton();
+        nexmlFormatButton = new javax.swing.JRadioButton();
+
+        fileChooser.setFileFilter( new MyCustomFilter());
+        fileChooser.setFileHidingEnabled(false);
+        
+        savefileChooser = new javax.swing.JFileChooser();
+		savefileChooser.setFileFilter(new MyCustomFilter());
+		savefileChooser.setFileHidingEnabled(false);
+
+		savenexfileChooser = new javax.swing.JFileChooser();
+		savenexfileChooser.setFileFilter(new MyCustomFilterNex());
+		savenexfileChooser.setFileHidingEnabled(false);
+		
+		savephyfileChooser = new javax.swing.JFileChooser();
+		savephyfileChooser.setFileFilter(new MyCustomFilterPhy());
+		savephyfileChooser.setFileHidingEnabled(false);
+
+		savexmlfileChooser = new javax.swing.JFileChooser();
+		savexmlfileChooser.setFileFilter(new MyCustomFilterXml());
+		savexmlfileChooser.setFileHidingEnabled(false);
+	    	    
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Step 1: Choose Matrix File"));
+
+        filepathText.setEditable(false);
+        filepathText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filepathTextActionPerformed(evt);
+            }
+        });
+
+        jButton1.setText("Open Matrix File");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(44, 44, 44)
+                .addComponent(filepathText, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(filepathText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton1))
+        );
+
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Step 2: Choose Character"));
+
+        characterComboBox.setEnabled(false);
+        characterComboBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                characterComboBoxItemStateChanged(evt);
+            }
+        });
+        characterComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                characterComboBoxActionPerformed(evt);
+            }
+        });
+        characterComboBox.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                characterComboBoxFocusGained(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(42, 42, 42)
+                .addComponent(characterComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 466, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(characterComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Step 3: Set up Mapping Rules"));
+        jPanel3.setToolTipText("");
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Step 3.1: Set up Character Mapping Rules"));
+
+        mappingChoiceButtonGroup.add(asisValueRadio);
+        asisValueRadio.setSelected(true);
+        asisValueRadio.setText("As-is");
+        asisValueRadio.setEnabled(false);
+        asisValueRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                asisValueRadioActionPerformed(evt);
+            }
+        });
+
+        mappingChoiceButtonGroup.add(binRadio);
+        binRadio.setText("Bin");
+        binRadio.setEnabled(false);
+        binRadio.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                binRadioStateChanged(evt);
+            }
+        });
+        binRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                binRadioActionPerformed(evt);
+            }
+        });
+
+        mappingChoiceButtonGroup.add(numberRadio);
+        numberRadio.setText("Number");
+        numberRadio.setEnabled(false);
+        numberRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                numberRadioActionPerformed(evt);
+            }
+        });
+
+        binRuleTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "From", "To", "Value"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Double.class, java.lang.Double.class, java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        binRuleTable.setEnabled(false);
+        jScrollPane2.setViewportView(binRuleTable);
+
+
+        insertBinRuleButton.setText("Insert");
+        insertBinRuleButton.setEnabled(false);
+        insertBinRuleButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                insertBinRuleButtonActionPerformed(evt);
+            }
+        });
+
+        deleteBinRuleButton.setText("Delete");
+        deleteBinRuleButton.setEnabled(false);
+        deleteBinRuleButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteBinRuleButtonActionPerformed(evt);
+            }
+        });
+
+        applyBinRuleButton.setText("Apply");
+        applyBinRuleButton.setEnabled(false);
+        applyBinRuleButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                applyBinRuleButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addComponent(asisValueRadio)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(numberRadio)
+                .addGap(50, 50, 50)
+                .addComponent(binRadio)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 227, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(deleteBinRuleButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(applyBinRuleButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(insertBinRuleButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(48, 48, 48))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(insertBinRuleButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteBinRuleButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(applyBinRuleButton))
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(asisValueRadio)
+                            .addComponent(binRadio)
+                            .addComponent(numberRadio))))
+                .addContainerGap())
+        );
+
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Step 3.2 Check Mappings"));
+
+        featureMappingTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Character States", "Value"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class,   java.lang.Object.class//java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(featureMappingTable);
+
+        saveMappingRuleButton.setText("Save Rule");
+        saveMappingRuleButton.setEnabled(false);
+        saveMappingRuleButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveMappingRuleButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 533, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(saveMappingRuleButton)
+                .addContainerGap(13, Short.MAX_VALUE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(saveMappingRuleButton)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Step 4: Save Matrix"));
+
+        saveMatrixButton.setText("Save Matrix To File");
+        saveMatrixButton.setEnabled(false);
+        saveMatrixButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveMatrixButtonActionPerformed(evt);
+            }
+        });
+
+        outputFormatChoiceButtonGroup.add(nexFormatButton);
+        nexFormatButton.setText("nex");
+        nexFormatButton.setEnabled(false);
+
+        outputFormatChoiceButtonGroup.add(phyFormatButton);
+        phyFormatButton.setText("phy");
+        phyFormatButton.setEnabled(false);
+        
+        outputFormatChoiceButtonGroup.add(nexmlFormatButton);
+        nexmlFormatButton.setText("NeXML");
+        nexmlFormatButton.setEnabled(false);
+
+        outputFormatChoiceButtonGroup.add(txtFormatButton);
+        txtFormatButton.setSelected(true);
+        txtFormatButton.setText("txt");
+        txtFormatButton.setToolTipText("");
+        txtFormatButton.setEnabled(false);
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addGap(38, 38, 38)
+                .addComponent(txtFormatButton)
+                .addGap(51, 51, 51)
+                .addComponent(nexFormatButton)
+                .addGap(49, 49, 49)
+                .addComponent(nexmlFormatButton)
+                .addGap(49, 49, 49)
+                .addComponent(phyFormatButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(saveMatrixButton)
+                .addGap(155, 155, 155))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(saveMatrixButton)
+                .addComponent(nexFormatButton)
+                .addComponent(phyFormatButton)
+                .addComponent(nexmlFormatButton)
+                .addComponent(txtFormatButton))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        int returnVal = fileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                File file = fileChooser.getSelectedFile();
+                // What to do with the file, e.g. display it in a TextArea
+                filepath = file.getAbsolutePath();
+                filepathText.setText(filepath);
+
+                characterComboBox.removeAllItems();
+                characterFeatureList = new ArrayList();
+                columnStatistics = null;
+                mappingRuleMap = new HashMap();
+                binMappingRuleMap = new HashMap();  
+                
+                
+                if (filepath.endsWith(".txt")){
+                	txtMatrixFileIo txtio = new txtMatrixFileIo();
+                    headers = (ArrayList) txtio.readHeader(filepath,true);
+                    characterFeatureList = txtio.readAll(filepath,true);
+                }else if  (filepath.endsWith(".csv")){
+    				csvFileIO csvio = new csvFileIO();
+    				headers = (ArrayList) csvio.readHeader(filepath);
+    				characterFeatureList = csvio.readAll(filepath);
+                }
+                
+                columnStatistics = (List) characterFeatureList.get(characterFeatureList.size()-1);
+                characterFeatureList.remove(characterFeatureList.size()-1);
+                
+                int[] nonEmptyColumn = (int[]) characterFeatureList.get(characterFeatureList.size()-1);
+                int totalTaxa = nonEmptyColumn[nonEmptyColumn.length-1];
+                for (int i = 0; i < headers.size(); i++) {
+                    String character = headers.get(i);
+                    ArrayList featurelist = (ArrayList) characterFeatureList.get(i);
+                    int featureNum = featurelist.size();
+                    int taxaNum = nonEmptyColumn[i];
+                    double percentage = taxaNum;
+                    percentage = percentage*100.0/totalTaxa;
+                    percentage = Math.round(percentage * 1000.0) / 1000.0;
+                    character = character + "\t (Character States: "+String.valueOf(featureNum)+", Taxa:"+String.valueOf(taxaNum)+" ["+percentage+"%])";
+                    if (character != null && !character.equals("")) {
+                        characterComboBox.addItem(character);
+                    }
+                }
+                characterFeatureList.remove(characterFeatureList.size()-1);
+                
+
+                
+                
+                characterComboBox.setEnabled(true);
+                asisValueRadio.setEnabled(true);
+                numberRadio.setEnabled(true);
+                binRadio.setEnabled(true);
+                saveMappingRuleButton.setEnabled(true);
+            } catch (Exception ex) {
+           //     Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
+                StringWriter sw = new StringWriter();PrintWriter pw = new PrintWriter(sw);ex.printStackTrace(pw);
+                LOGGER.error(sw.toString());
+            }
+        } else {
+            System.out.println("File access cancelled by user.");
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void filepathTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filepathTextActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_filepathTextActionPerformed
+
+    private void characterComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_characterComboBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_characterComboBoxActionPerformed
+
+    private void characterComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_characterComboBoxItemStateChanged
+		try {
+			if (characterComboBox.getItemCount() > 0) {
+				int index = characterComboBox.getSelectedIndex();
+				String character = (String) characterComboBox.getSelectedItem();
+				SortedMap featureMap = (SortedMap) mappingRuleMap
+						.get(character);
+				DefaultTableModel defaultModel = (DefaultTableModel) featureMappingTable
+						.getModel();
+
+				for (int i = defaultModel.getRowCount() - 1; i >= 0; i--) {
+					defaultModel.removeRow(i);
+				}
+
+				asisValueRadio.setSelected(true);
+
+				if (characterFeatureList.size() > 0) {
+					ArrayList featurelist = (ArrayList) characterFeatureList
+							.get(index);
+					HashMap featureStatMap = (HashMap) columnStatistics
+							.get(index);
+					if (featureMap != null) {
+						for (int i = 0; i < featurelist.size(); i++) {
+							Vector newRow = new Vector();
+							String feature = (String) featurelist.get(i);
+							int taxNum = (Integer) featureStatMap.get(feature);
+							newRow.add(feature + "(" + taxNum + ")");
+							newRow.add(featureMap.get(feature));
+							defaultModel.addRow(newRow);
+						}
+					} else {
+						if (asisValueRadio.isSelected()) {
+							for (int i = 0; i < featurelist.size(); i++) {
+								Vector newRow = new Vector();
+								String feature = (String) featurelist.get(i);
+								int taxNum = (Integer) featureStatMap
+										.get(feature);
+								newRow.add(feature + " (" + taxNum + ")");
+
+								if (StringPattern.isDouble(feature)) {
+									double value = Double.valueOf(feature);
+									value = Math.round(value * 1000.0) / 1000.0;
+									feature = String.valueOf(value);
+								}
+								newRow.add(feature);
+								defaultModel.addRow(newRow);
+							}
+						}
+						if (numberRadio.isSelected() || binRadio.isSelected()) {
+							for (int i = 0; i < featurelist.size(); i++) {
+								Vector newRow = new Vector();
+								String feature = (String) featurelist.get(i);
+								int taxNum = (Integer) featureStatMap
+										.get(feature);
+								newRow.add(feature + " (" + taxNum + ")");
+
+								newRow.add(String.valueOf(i));
+								defaultModel.addRow(newRow);
+							}
+						}
+					}
+
+				}
+
+				fSorter = new TableRowSorter<TableModel>(defaultModel);
+				featureMappingTable.setRowSorter(fSorter);
+				featureMappingTable.getTableHeader().addMouseListener(
+						new CustomSorter());
+			}
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+        
+    }//GEN-LAST:event_characterComboBoxItemStateChanged
+
+    private void asisValueRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_asisValueRadioActionPerformed
+		try {
+			int index = characterComboBox.getSelectedIndex();
+			String character = (String) characterComboBox.getSelectedItem();
+			SortedMap featureMap = (SortedMap) mappingRuleMap.get(character);
+			DefaultTableModel defaultModel = (DefaultTableModel) featureMappingTable
+					.getModel();
+
+			for (int i = defaultModel.getRowCount() - 1; i >= 0; i--) {
+				defaultModel.removeRow(i);
+			}
+
+			if (characterFeatureList.size() > 0) {
+				ArrayList featurelist = (ArrayList) characterFeatureList
+						.get(index);
+				HashMap featureStatMap = (HashMap) columnStatistics.get(index);
+				if (featureMap != null) {
+					for (int i = 0; i < featurelist.size(); i++) {
+						Vector newRow = new Vector();
+						String feature = (String) featurelist.get(i);
+						// newRow.add(feature);
+						int taxNum = (Integer) featureStatMap.get(feature);
+						newRow.add(feature + " (" + taxNum + ")");
+						Object value = featureMap.get(feature);
+						if (!value.equals("") && value!=null)
+							newRow.add(value);
+						defaultModel.addRow(newRow);
+					}
+				} else {
+					for (int i = 0; i < featurelist.size(); i++) {
+						Vector newRow = new Vector();
+						String feature = (String) featurelist.get(i);
+						// newRow.add(feature);
+						int taxNum = (Integer) featureStatMap.get(feature);
+						newRow.add(feature + " (" + taxNum + ")");
+
+				/*		if (StringPattern.isDouble(feature)) {
+							double value = Double.valueOf(feature);
+							value = Math.round(value * 10000) / 10000;
+							feature = String.valueOf(value);
+						}*/
+
+						newRow.add(feature);
+						defaultModel.addRow(newRow);
+					}
+				}
+			}
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+
+    }//GEN-LAST:event_asisValueRadioActionPerformed
+
+	private void numberRadioActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_numberRadioActionPerformed
+		try {
+			int index = characterComboBox.getSelectedIndex();
+			String character = (String) characterComboBox.getSelectedItem();
+			SortedMap featureMap = (SortedMap) mappingRuleMap.get(character);
+			DefaultTableModel defaultModel = (DefaultTableModel) featureMappingTable
+					.getModel();
+
+			for (int i = defaultModel.getRowCount() - 1; i >= 0; i--) {
+				defaultModel.removeRow(i);
+			}
+
+			if (characterFeatureList.size() > 0) {
+				ArrayList featurelist = (ArrayList) characterFeatureList
+						.get(index);
+				HashMap featureStatMap = (HashMap) columnStatistics.get(index);
+				if (featureMap != null) {
+					for (int i = 0; i < featurelist.size(); i++) {
+						Vector newRow = new Vector();
+						String feature = (String) featurelist.get(i);
+						// newRow.add(feature);
+						int taxNum = (Integer) featureStatMap.get(feature);
+						newRow.add(feature + " (" + taxNum + ")");
+						Object value = featureMap.get(feature);
+						if (!value.equals("") && value!=null)
+							newRow.add(value);
+				//		newRow.add(featureMap.get(feature));
+						defaultModel.addRow(newRow);
+					}
+				} else {
+					for (int i = 0; i < featurelist.size(); i++) {
+						Vector newRow = new Vector();
+						String feature = (String) featurelist.get(i);
+						// newRow.add(feature);
+						int taxNum = (Integer) featureStatMap.get(feature);
+						newRow.add(feature + " (" + taxNum + ")");
+
+						newRow.add(String.valueOf(i));
+						defaultModel.addRow(newRow);
+					}
+				}
+			}
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+	}// GEN-LAST:event_numberRadioActionPerformed
+
+    private void insertBinRuleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertBinRuleButtonActionPerformed
+		try {
+			// TODO add your handling code here:
+			DefaultTableModel defaultModel = (DefaultTableModel) binRuleTable
+					.getModel();
+			Vector newRow = new Vector();
+			newRow.add(0.0);
+			newRow.add(1.0);
+			newRow.add(0);
+			defaultModel.addRow(newRow);
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+    }//GEN-LAST:event_insertBinRuleButtonActionPerformed
+
+	private void deleteBinRuleButtonActionPerformed(
+			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_deleteBinRuleButtonActionPerformed
+		try {
+			// TODO add your handling code here:
+			DefaultTableModel defaultModel = (DefaultTableModel) binRuleTable
+					.getModel();
+			int rowindex = binRuleTable.getSelectedRow();
+			defaultModel.removeRow(rowindex);
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+	}// GEN-LAST:event_deleteBinRuleButtonActionPerformed
+
+	private void applyBinRuleButtonActionPerformed(
+			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_applyBinRuleButtonActionPerformed
+		// TODO add your handling code here:
+		try {
+			int index = characterComboBox.getSelectedIndex();
+			String character = (String) characterComboBox.getSelectedItem();
+			character = character.substring(0, character.indexOf("\t"));
+			DefaultTableModel defaultModel = (DefaultTableModel) featureMappingTable
+					.getModel();
+
+			DefaultTableModel binmodel = (DefaultTableModel) binRuleTable
+					.getModel();
+
+			for (int i = defaultModel.getRowCount() - 1; i >= 0; i--) {
+				defaultModel.removeRow(i);
+			}
+
+			binRuleTable.setAutoCreateRowSorter(true);
+			DefaultRowSorter sorter = ((DefaultRowSorter) binRuleTable
+					.getRowSorter());
+			ArrayList list = new ArrayList();
+			list.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+			sorter.setSortKeys(list);
+			sorter.sort();
+
+			if (characterFeatureList.size() > 0) {
+				ArrayList featurelist = (ArrayList) characterFeatureList
+						.get(index);
+				HashMap featureStatMap = (HashMap) columnStatistics.get(index);
+				ArrayList binRules = new ArrayList();
+				SortedMap featureBinRuleMap = (SortedMap) binMappingRuleMap
+						.get(character);
+				if (featureBinRuleMap == null) {
+					featureBinRuleMap = new TreeMap();
+					binMappingRuleMap.put(character, featureBinRuleMap);
+				}
+				for (int i = 0; i < binmodel.getRowCount(); i++) {
+					Double fromvalue = (Double) binmodel.getValueAt(i, 0);
+					Double tovalue = (Double) binmodel.getValueAt(i, 1);
+					Integer mapvalue = (Integer) binmodel.getValueAt(i, 2);
+					Double[] rangeMap = new Double[3];
+					rangeMap[0] = fromvalue;
+					rangeMap[1] = tovalue;
+					rangeMap[2] = Double.valueOf(mapvalue);
+					binRules.add(rangeMap);
+					featureBinRuleMap.put(mapvalue.toString(),
+							fromvalue.toString() + "_" + tovalue.toString());
+					// featureMap.put(feature, value);
+				}
+				for (int i = 0; i < featurelist.size(); i++) {
+					Vector newRow = new Vector();
+					String feature = (String) featurelist.get(i);
+					// newRow.add(feature);
+					int taxNum = (Integer) featureStatMap.get(feature);
+					newRow.add(feature + " (" + taxNum + ")");
+
+					boolean isDouble = StringPattern.isDouble(feature);
+					if (isDouble) {
+						for (int j = 0; j < binRules.size(); j++) {
+							Double featurevalue = Double.valueOf(feature);
+							Double[] rangeMap = (Double[]) binRules.get(j);
+							Double fromvalue = rangeMap[0];
+							Double tovalue = rangeMap[1];
+							Double mapvalue = rangeMap[2];
+							if (featurevalue >= fromvalue
+									&& featurevalue < tovalue) {
+								newRow.add(String.valueOf(mapvalue.intValue()));
+								newRow.add(feature + " (" + taxNum + ")");
+								break;
+							}
+						}
+					} else {
+						newRow.add("");
+					}
+
+					defaultModel.addRow(newRow);
+				}
+			}
+	/*		TableRowSorter<TableModel> sorter1 = new TableRowSorter<TableModel>(
+					defaultModel);
+			featureMappingTable.setRowSorter(sorter1);*/
+
+			
+
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+
+	}// GEN-LAST:event_applyBinRuleButtonActionPerformed
+	
+	 private final class CustomSorter extends MouseAdapter {
+		    @Override public void mouseClicked(MouseEvent aEvent) {
+		      int columnIdx = featureMappingTable.getColumnModel().getColumnIndexAtX(aEvent.getX());
+		      //build a list of sort keys for this column, and pass it to the sorter
+		      //you can build the list to fit your needs here 
+		      //for example, you can sort on multiple columns, not just one
+		     // sortKeys;// = new ArrayList<RowSorter.SortKey>();
+		      if (sortKeys==null)
+		    	  sortKeys = new ArrayList<RowSorter.SortKey>();
+		      //cycle through all orders; sort is removed every 3rd click
+		      SortOrder order =  SortOrder.values()[fCountClicks % 3];
+		      Iterator it = sortKeys.iterator();
+		      boolean alreadySortCol = false;
+		      int remIdx = -1;
+		      int i=0;
+		      while(it.hasNext()){
+		    	  SortKey rs = (SortKey) it.next();
+		    	  if (rs.getColumn()==columnIdx){
+		    		  remIdx = i;
+		    		  alreadySortCol = true;
+		    		  break;
+		    	  }
+		    	  i++;
+		      }
+		      if (alreadySortCol)
+		    	  sortKeys.remove(remIdx);
+		    	  
+		      sortKeys.add(new RowSorter.SortKey(columnIdx, order));
+		//      fSorter.setSortKeys(sortKeys);
+		      fSorter.sort();
+		      ++fCountClicks;
+		    }
+		    private int fCountClicks;
+		  }
+
+	private void saveMappingRuleButtonActionPerformed(
+			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_saveMappingRuleButtonActionPerformed
+		// TODO add your handling code here:
+		try {
+			int index = characterComboBox.getSelectedIndex();
+			String character = (String) characterComboBox.getSelectedItem();
+			character = character.substring(0, character.indexOf("\t"));
+			ArrayList featurelist = (ArrayList) characterFeatureList.get(index);
+			SortedMap featureMap = (SortedMap) mappingRuleMap.get(character);
+
+			if (featureMap == null) {
+				featureMap = new TreeMap();
+				mappingRuleMap.put(character, featureMap);
+			}
+
+			DefaultTableModel model = (DefaultTableModel) featureMappingTable
+					.getModel();
+			for (int i = 0; i < model.getRowCount(); i++) {
+				String feature = (String) model.getValueAt(i, 0);
+				feature = feature.substring(0, feature.indexOf("(") - 1);
+				if (StringPattern.isENum(feature)) {
+					BigDecimal db = new BigDecimal(feature);
+					feature = db.toPlainString();
+				}
+				Object value = model.getValueAt(i, 1);
+				if (!value.equals("") && value!=null)
+					featureMap.put(feature, value);
+			}
+
+			saveMatrixButton.setEnabled(true);
+			txtFormatButton.setEnabled(true);
+			nexFormatButton.setEnabled(true);
+			phyFormatButton.setEnabled(true);
+			nexmlFormatButton.setEnabled(true);
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+
+	}// GEN-LAST:event_saveMappingRuleButtonActionPerformed
+
+	private void saveMatrixButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_saveMatrixButtonActionPerformed
+		// TODO add your handling code here:
+		try {
+			
+			JFileChooser fchooser = savefileChooser;;
+			
+			if (txtFormatButton.isSelected()) {
+				fchooser = savefileChooser;
+			} else if (nexFormatButton.isSelected()) {
+				fchooser = savenexfileChooser;
+			} else if (phyFormatButton.isSelected()) {
+				fchooser = savephyfileChooser;
+			} else if (nexmlFormatButton.isSelected()) {
+				fchooser = savexmlfileChooser;
+			}
+
+			int returnVal = fchooser.showSaveDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				txtMatrixFileIo txtio = new txtMatrixFileIo();
+				File file = fchooser.getSelectedFile();
+
+				// What to do with the file, e.g. display it in a TextArea
+				outfilepath = file.getAbsolutePath();
+
+				// txtio.saveAll(filepath, outfilepath, mappingRuleMap);
+				if (txtFormatButton.isSelected()){
+					if (outfilepath.indexOf(".txt") < 0)
+						outfilepath += ".txt";
+					txtio.saveTxt(filepath, outfilepath, mappingRuleMap, false);
+				} else if (nexFormatButton.isSelected()){
+					if (outfilepath.indexOf(".nex") < 0)
+						outfilepath += ".nex";
+					txtio.saveNex(filepath, outfilepath, mappingRuleMap,
+							binMappingRuleMap, false);
+				}else if (phyFormatButton.isSelected()){
+					if (outfilepath.indexOf(".phy") < 0)
+						outfilepath += ".phy";
+					txtio.savePhy(filepath, outfilepath, mappingRuleMap, false);
+				}else if (nexmlFormatButton.isSelected()) {
+					if (outfilepath.indexOf(".xml") < 0)
+						outfilepath += ".xml";
+					NeXMLIO nexmlio = new NeXMLIO();
+					nexmlio.saveNeXML(filepath, outfilepath, mappingRuleMap,
+							false);
+				}
+
+			}
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+	}// GEN-LAST:event_saveMatrixButtonActionPerformed
+
+    private void binRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_binRadioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_binRadioActionPerformed
+
+	private void binRadioStateChanged(javax.swing.event.ChangeEvent evt) {// GEN-FIRST:event_binRadioStateChanged
+		// TODO add your handling code here:
+		try {
+			if (binRadio.isSelected()) {
+				binRuleTable.setEnabled(true);
+				insertBinRuleButton.setEnabled(true);
+				deleteBinRuleButton.setEnabled(true);
+				applyBinRuleButton.setEnabled(true);
+			} else {
+				binRuleTable.setEnabled(false);
+				insertBinRuleButton.setEnabled(false);
+				deleteBinRuleButton.setEnabled(false);
+				applyBinRuleButton.setEnabled(false);
+			}
+		} catch (Exception ex) {
+			// Logger.getLogger(MatrixCoverstionUI.class.getName()).log(Level.SEVERE,
+			// null, ex);
+			ex.printStackTrace();
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			ex.printStackTrace(pw);
+			LOGGER.error(sw.toString());
+		}
+	}// GEN-LAST:event_binRadioStateChanged
+
+    private void characterComboBoxFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_characterComboBoxFocusGained
+ 
+    }//GEN-LAST:event_characterComboBoxFocusGained
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(MatrixCoverstionUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            ex.printStackTrace();
+            StringWriter sw = new StringWriter();PrintWriter pw = new PrintWriter(sw);ex.printStackTrace(pw);
+            LOGGER.error(sw.toString());
+        } 
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+				try {
+					new MatrixCoverstionUI().setVisible(true);
+				} catch (Exception ex) {
+					java.util.logging.Logger.getLogger(
+							MatrixCoverstionUI.class.getName()).log(
+							java.util.logging.Level.SEVERE, null, ex);
+					ex.printStackTrace();
+					StringWriter sw = new StringWriter();
+					PrintWriter pw = new PrintWriter(sw);
+					ex.printStackTrace(pw);
+					LOGGER.error(sw.toString());
+				}
+            }
+        });
+    }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton applyBinRuleButton;
+    private javax.swing.JRadioButton asisValueRadio;
+    private javax.swing.JRadioButton binRadio;
+    private javax.swing.JTable binRuleTable;
+    private javax.swing.JComboBox characterComboBox;
+    private javax.swing.JButton deleteBinRuleButton;
+    private javax.swing.JTable featureMappingTable;
+    private javax.swing.JFileChooser fileChooser;
+    private javax.swing.JFileChooser savefileChooser;
+    private javax.swing.JFileChooser savenexfileChooser;
+    private javax.swing.JFileChooser savephyfileChooser;
+    private javax.swing.JFileChooser savexmlfileChooser;
+    private javax.swing.JTextField filepathText;
+    private javax.swing.JButton insertBinRuleButton;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.ButtonGroup mappingChoiceButtonGroup;
+    private javax.swing.JRadioButton nexFormatButton;
+    private javax.swing.JRadioButton numberRadio;
+    private javax.swing.ButtonGroup outputFormatChoiceButtonGroup;
+    private javax.swing.JRadioButton phyFormatButton;
+    private javax.swing.JButton saveMappingRuleButton;
+    private javax.swing.JButton saveMatrixButton;
+    private javax.swing.JRadioButton txtFormatButton;
+    private javax.swing.JRadioButton nexmlFormatButton;
+    // End of variables declaration//GEN-END:variables
+}
